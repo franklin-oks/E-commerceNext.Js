@@ -1,8 +1,11 @@
 "use client";
+
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import { useState, useEffect } from "react";
+import { FaWhatsapp, FaRegCopy, FaTimes } from "react-icons/fa";
+import { createPortal } from "react-dom";
 
-// ✅ Currency formatter for Naira
 const formatCurrency = (amount) => {
   if (isNaN(amount)) return "₦0";
   return new Intl.NumberFormat("en-NG", {
@@ -12,90 +15,168 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-const CartModel = () => {
+const CartModel = ({ onClose }) => {
   const { cart, removeFromCart, getSubtotal } = useCart();
-
-  // Subtotal only (no delivery fee)
   const subtotal = getSubtotal() || 0;
-  const total = subtotal; // Total = subtotal, delivery is excluded
+  const total = subtotal;
 
-  return (
-    <div className="w-max max-h-[70vh] shadow-[0_3px_10px_rgba(0,0,0,0.2)] absolute p-4 rounded-md bg-white top-20 lg:top-12 right-1 flex flex-col gap-6 z-20">
-      <h2 className="font-semibold text-lg">Shopping Cart</h2>
+  const [showBank, setShowBank] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-      {cart.length === 0 ? (
-        <div>Cart is Empty</div>
-      ) : (
-        // Make items scrollable
-        <div className="flex flex-col gap-8 overflow-y-auto max-h-[50vh] pr-2">
-          {cart.map((item) => (
-            <div
-              key={item.id}
-              className="flex gap-4 items-center justify-center"
-            >
-              <Image
-                src={item.image}
-                alt={item.name}
-                width={99}
-                height={92}
-                className="object-cover rounded-md"
-              />
-              <div className="flex flex-col gap-6 justify-between w-full">
-                <div className="flex items-center justify-between gap-6">
-                  <div>
+  const bankDetails = {
+    accountName: "Okeke Obinna Franklin",
+    accountNumber: "2253956994",
+    bankName: "Zenith Bank",
+    whatsapp: "+2348103919717",
+  };
+
+  const whatsappMessage = encodeURIComponent(
+    `Hi, I have transferred ${formatCurrency(total)} to your account ${
+      bankDetails.accountNumber
+    } (${bankDetails.bankName}). Please confirm.`
+  );
+  const whatsappLink = `https://wa.me/${bankDetails.whatsapp}?text=${whatsappMessage}`;
+
+  const copyAccountNumber = () => {
+    navigator.clipboard.writeText(bankDetails.accountNumber);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Avoid SSR hydration issues
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
+
+  return createPortal(
+    <>
+      {/* Sidebar */}
+      <div className="fixed top-0 right-0 w-full sm:w-96 h-full bg-white shadow-lg p-6 z-[1100] flex flex-col gap-6 overflow-y-auto">
+        <button
+          className="absolute top-4 right-4 text-gray-600 hover:text-black"
+          onClick={onClose}
+        >
+          <FaTimes size={22} />
+        </button>
+
+        <h2 className="font-semibold text-lg">Shopping Cart</h2>
+
+        {cart.length === 0 ? (
+          <div className="mt-4">Cart is Empty</div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {cart.map((item) => (
+              <div
+                key={item.id}
+                className="flex gap-4 items-center justify-between border-b pb-2"
+              >
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  width={80}
+                  height={80}
+                  className="object-cover rounded-md"
+                />
+                <div className="flex flex-col flex-1 gap-2">
+                  <div className="flex justify-between items-center">
                     <h3 className="font-semibold">{item.name}</h3>
-                    <div className="text-sm bg-green-500 p-1 rounded-full text-white flex items-center justify-center">
-                      Available
-                    </div>
+                    <span>{formatCurrency(item.price)}</span>
                   </div>
-
-                  <div className="p-1 bg-gray-50 rounded-sm">
-                    {formatCurrency(Number(item.price))}
+                  <div className="flex justify-between items-center text-sm">
+                    <span>Qty: {item.quantity}</span>
+                    <span
+                      className="text-red-600 cursor-pointer"
+                      onClick={() => removeFromCart(item.id)}
+                    >
+                      Remove
+                    </span>
                   </div>
-                </div>
-
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Qty. {item.quantity}</span>
-                  <span
-                    className="text-red-600 cursor-pointer"
-                    onClick={() => removeFromCart(item.id)}
-                  >
-                    Remove
-                  </span>
                 </div>
               </div>
+            ))}
+          </div>
+        )}
+
+        {/* Subtotal & Total */}
+        <div className="mt-4 border-t pt-4 flex flex-col gap-2">
+          <div className="flex justify-between font-semibold">
+            <span>Subtotal</span>
+            <span>{formatCurrency(subtotal)}</span>
+          </div>
+          <div className="flex justify-between font-bold text-lg">
+            <span>Total</span>
+            <span>{formatCurrency(total)}</span>
+          </div>
+          <p className="text-gray-500 text-sm">
+            Delivery fees are negotiated on call (excluded here)
+          </p>
+        </div>
+
+        {/* Payment Options */}
+        {!showBank ? (
+          <div className="flex justify-between gap-2 mt-4">
+            <button
+              className="flex-1 rounded-md py-3 px-4 ring-1 ring-gray-500"
+              onClick={() => alert("Debit Card Payment - Integrate later")}
+            >
+              Pay with Card
+            </button>
+            <button
+              className="flex-1 rounded-md py-3 px-4 bg-black text-white font-bold"
+              onClick={() => setShowBank(true)}
+            >
+              Bank Transfer
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3 mt-4 border-t pt-4">
+            <h3 className="font-semibold">Bank Transfer Details</h3>
+            <p>
+              <strong>Bank:</strong> {bankDetails.bankName}
+            </p>
+            <p>
+              <strong>Account Name:</strong> {bankDetails.accountName}
+            </p>
+            <div className="flex items-center gap-2">
+              <strong>Account Number:</strong>
+              <span className="bg-gray-100 p-1 rounded">
+                {bankDetails.accountNumber}
+              </span>
+              <button
+                className="text-gray-600 hover:text-black"
+                onClick={copyAccountNumber}
+                title="Copy account number"
+              >
+                <FaRegCopy />
+              </button>
             </div>
-          ))}
-        </div>
-      )}
-
-      <div>
-        {/* Subtotal */}
-        <div className="flex justify-between items-center font-semibold">
-          <span>Subtotal</span>
-          <span>{formatCurrency(subtotal)}</span>
-        </div>
-
-        {/* Total */}
-        <div className="flex justify-between items-center font-bold text-lg mt-2">
-          <span>Total</span>
-          <span>{formatCurrency(total)}</span>
-        </div>
-
-        <p className="text-gray-500 mt-2 mb-4 text-sm">
-          Delivery fees are negotiated on call (excluded here)
-        </p>
-
-        <div className="flex justify-between text-sm">
-          <button className="rounded-md cursor-pointer py-3 px-4 ring-1 ring-gray-500">
-            View Cart
-          </button>
-          <button className="rounded-md cursor-pointer py-3 px-4 bg-black font-bold text-white">
-            Checkout
-          </button>
-        </div>
+            {copied && <span className="text-green-600 text-xs">Copied!</span>}
+            <p>
+              <strong>Amount to Pay:</strong> {formatCurrency(total)}
+            </p>
+            <p className="text-gray-500">
+              After payment, send the receipt via WhatsApp:
+            </p>
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 py-2 px-4 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+            >
+              <FaWhatsapp size={20} /> Send Receipt via WhatsApp
+            </a>
+          </div>
+        )}
       </div>
-    </div>
+
+      {/* Overlay */}
+      <div
+        className="fixed inset-0 bg-black bg-opacity-40 z-[1000]"
+        onClick={onClose}
+      />
+    </>,
+    document.body
   );
 };
 
