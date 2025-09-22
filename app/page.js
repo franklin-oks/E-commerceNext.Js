@@ -1,29 +1,95 @@
+// "use client";
+
+// import Category from "@/components/category/Category";
+// import Hero from "@/components/Hero";
+// import ProductList from "@/components/productList/ProductList";
+// import { products } from "@/components/utils";
+
+// const Home = () => {
+//   const sortedProducts = [...products].sort(
+//     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+//   );
+
+//   // Step 2: Slice into featured and new
+//   const featuredProducts = sortedProducts.slice(0, 8); // newest 8
+//   const newProducts = sortedProducts.slice(8, 16); // next 8
+
+//   return (
+//     <section>
+//       <Hero />
+//       <div className="mt-24 px-4 md:px-8 lg:px-16 xl:px-32">
+//         <h1 className="text-2xl">Featured Products</h1>
+//         <ProductList products={featuredProducts} />
+//       </div>
+//       <div className="mt-24 ">
+//         <h1 className="text-2xl mb-12 px-4 md:px-8 lg:px-16 xl:px-32">
+//           Categories
+//         </h1>
+//         <Category />
+//       </div>
+//       <div className="mt-24 px-4 md:px-8 lg:px-16 xl:px-32">
+//         <h1 className="text-2xl">New Products</h1>
+//         <ProductList products={newProducts} />
+//       </div>
+//     </section>
+//   );
+// };
+// export default Home;
+
+// chat
 "use client";
 
+import { useEffect, useState } from "react";
 import Category from "@/components/category/Category";
 import Hero from "@/components/Hero";
 import ProductList from "@/components/productList/ProductList";
-import { products } from "@/components/utils";
 
 const Home = () => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const res = await fetch("/api/products");
+        const data = await res.json();
+        setProducts(data);
+      } catch (err) {
+        console.error("❌ Failed to fetch products:", err);
+      }
+    }
+    fetchProducts();
+  }, []);
+
+  // Sort by createdAt
+  const sortedProducts = [...products].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
+  const featuredProducts = sortedProducts.slice(0, 8);
+  const newProducts = sortedProducts.slice(8, 16);
+
   return (
     <section>
       <Hero />
+
       <div className="mt-24 px-4 md:px-8 lg:px-16 xl:px-32">
         <h1 className="text-2xl">Featured Products</h1>
-        <ProductList products={products} limit={8} />
+        <ProductList products={featuredProducts} />
       </div>
-      <div className="mt-24 ">
+
+      <div className="mt-24">
         <h1 className="text-2xl mb-12 px-4 md:px-8 lg:px-16 xl:px-32">
           Categories
         </h1>
         <Category />
       </div>
+
       <div className="mt-24 px-4 md:px-8 lg:px-16 xl:px-32">
         <h1 className="text-2xl">New Products</h1>
-        <ProductList products={products} limit={8} />
+        <ProductList products={newProducts} />
       </div>
     </section>
   );
 };
+
 export default Home;

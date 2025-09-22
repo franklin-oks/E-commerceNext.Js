@@ -2,7 +2,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { products as defaultProducts } from "../utils.js"; // import your products array
 
 const formatCurrency = (amount) => {
   if (!amount) return "₦0";
@@ -13,10 +12,8 @@ const formatCurrency = (amount) => {
   }).format(Number(amount));
 };
 
-const ProductList = ({ products = defaultProducts, limit }) => {
+const ProductList = ({ products = [], limit }) => {
   const { addToCart } = useCart();
-
-  // Slice if limit is provided
   const displayedProducts = limit ? products.slice(0, limit) : products;
 
   return (
@@ -46,19 +43,26 @@ const ProductList = ({ products = defaultProducts, limit }) => {
               <p className="text-sm text-gray-500">{description}</p>
             </Link>
 
-            <button
-              onClick={() =>
-                addToCart({
-                  id,
-                  name,
-                  price,
-                  image: image1,
-                })
-              }
-              className="rounded-2xl ring-2 ring-orange-500 py-2 px-4 text-xs w-max hover:bg-orange-600 hover:text-white transition"
-            >
-              Add to Cart
-            </button>
+            <div className="flex justify-between px-2">
+              <Link href={`/detail/${id}`}>
+                <button className="rounded-2xl cursor-pointer ring-2 ring-orange-500 py-2 px-4 text-xs w-max hover:bg-orange-600 hover:text-white transition">
+                  View
+                </button>
+              </Link>
+              <button
+                onClick={() =>
+                  addToCart({
+                    id,
+                    name,
+                    price,
+                    image: image1,
+                  })
+                }
+                className="rounded-2xl ring-2 ring-orange-500 py-2 px-4 text-xs w-max hover:bg-orange-600 hover:text-white transition cursor-pointer"
+              >
+                Add to Cart
+              </button>
+            </div>
           </div>
         )
       )}
