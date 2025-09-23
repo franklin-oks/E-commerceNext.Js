@@ -1,48 +1,10 @@
-// "use client";
-
-// import Category from "@/components/category/Category";
-// import Hero from "@/components/Hero";
-// import ProductList from "@/components/productList/ProductList";
-// import { products } from "@/components/utils";
-
-// const Home = () => {
-//   const sortedProducts = [...products].sort(
-//     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-//   );
-
-//   // Step 2: Slice into featured and new
-//   const featuredProducts = sortedProducts.slice(0, 8); // newest 8
-//   const newProducts = sortedProducts.slice(8, 16); // next 8
-
-//   return (
-//     <section>
-//       <Hero />
-//       <div className="mt-24 px-4 md:px-8 lg:px-16 xl:px-32">
-//         <h1 className="text-2xl">Featured Products</h1>
-//         <ProductList products={featuredProducts} />
-//       </div>
-//       <div className="mt-24 ">
-//         <h1 className="text-2xl mb-12 px-4 md:px-8 lg:px-16 xl:px-32">
-//           Categories
-//         </h1>
-//         <Category />
-//       </div>
-//       <div className="mt-24 px-4 md:px-8 lg:px-16 xl:px-32">
-//         <h1 className="text-2xl">New Products</h1>
-//         <ProductList products={newProducts} />
-//       </div>
-//     </section>
-//   );
-// };
-// export default Home;
-
-// chat
 "use client";
 
 import { useEffect, useState } from "react";
-import Category from "@/components/category/Category";
 import Hero from "@/components/Hero";
+import Category from "@/components/category/Category";
 import ProductList from "@/components/productList/ProductList";
+import { fallbackProducts } from "@/utils/fallbackProducts";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -52,19 +14,27 @@ const Home = () => {
       try {
         const res = await fetch("/api/products");
         const data = await res.json();
-        setProducts(data);
+
+        // If API returns empty array, use fallback
+        if (!data || data.length === 0) {
+          setProducts(fallbackProducts);
+        } else {
+          setProducts(data);
+        }
       } catch (err) {
         console.error("❌ Failed to fetch products:", err);
+        setProducts(fallbackProducts); // fallback on error
       }
     }
     fetchProducts();
   }, []);
 
-  // Sort by createdAt
+  // Sort by createdAt descending
   const sortedProducts = [...products].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
   );
 
+  // Take first 8 as featured, next 8 as new
   const featuredProducts = sortedProducts.slice(0, 8);
   const newProducts = sortedProducts.slice(8, 16);
 
@@ -73,7 +43,7 @@ const Home = () => {
       <Hero />
 
       <div className="mt-24 px-4 md:px-8 lg:px-16 xl:px-32">
-        <h1 className="text-2xl">Featured Products</h1>
+        <h1 className="text-2xl mb-4">Featured Products</h1>
         <ProductList products={featuredProducts} />
       </div>
 
@@ -85,7 +55,7 @@ const Home = () => {
       </div>
 
       <div className="mt-24 px-4 md:px-8 lg:px-16 xl:px-32">
-        <h1 className="text-2xl">New Products</h1>
+        <h1 className="text-2xl mb-4">New Products</h1>
         <ProductList products={newProducts} />
       </div>
     </section>

@@ -1,24 +1,23 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
 async function uploadToCloudinary(file) {
-  // Upload file using unsigned preset
   const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`;
   const fd = new FormData();
   fd.append("file", file);
   fd.append("upload_preset", UPLOAD_PRESET);
-  // optional: fd.append("folder", "products");
 
   const res = await fetch(url, { method: "POST", body: fd });
   if (!res.ok) throw new Error("Upload failed");
   const data = await res.json();
-  return data.secure_url; // returned image URL
+  return data.secure_url;
 }
 
 export default function AdminProductsPage() {
+  const [authorized, setAuthorized] = useState(false);
   const [form, setForm] = useState({
     name: "",
     oldPrice: "",
@@ -36,22 +35,36 @@ export default function AdminProductsPage() {
     image3: false,
   });
 
+  // --- SIMPLE CLIENT AUTH ---
+  useEffect(() => {
+    const token = prompt("Enter admin token");
+    if (token === process.env.NEXT_PUBLIC_ADMIN_TOKEN) {
+      setAuthorized(true);
+    } else {
+      alert("Unauthorized");
+      window.location.href = "/";
+    }
+  }, []);
+
+  if (!authorized) return null;
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((p) => ({ ...p, [name]: type === "checkbox" ? checked : value }));
   };
 
   const handleFileChange = async (e) => {
-    const { name, files } = e.target; // name is "image1", "image2" or "image3"
+    const { name, files } = e.target;
     if (!files || !files[0]) return;
     const file = files[0];
+
     try {
       setUploading((s) => ({ ...s, [name]: true }));
       const url = await uploadToCloudinary(file);
       setForm((p) => ({ ...p, [name]: url }));
     } catch (err) {
-      console.error("Upload error:", err);
-      alert("Image upload failed. Try again.");
+      console.error(err);
+      alert("Image upload failed");
     } finally {
       setUploading((s) => ({ ...s, [name]: false }));
     }
@@ -59,22 +72,26 @@ export default function AdminProductsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // basic validation
     if (!form.name || !form.price) {
-      alert("Please fill name and price.");
+      alert("Please fill name and price");
       return;
     }
 
-    // if no image uploaded, you can warn or allow
-    // submit to your API
-    const res = await fetch("/api/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const res = await fetch("/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.ADMIN_TOKEN}`,
+        },
+        body: JSON.stringify(form),
+      });
 
-    if (res.ok) {
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Upload failed");
+      }
+
       alert("Product uploaded successfully!");
       setForm({
         name: "",
@@ -87,10 +104,9 @@ export default function AdminProductsPage() {
         image3: "",
         description: "",
       });
-    } else {
-      const err = await res.json().catch(() => ({}));
-      console.error("Failed to add product:", err);
-      alert("Upload failed");
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
     }
   };
 
@@ -103,8 +119,8 @@ export default function AdminProductsPage() {
           placeholder="Product name"
           value={form.name}
           onChange={handleChange}
-          className="w-full p-2 border rounded"
           required
+          className="w-full p-2 border rounded"
         />
         <input
           name="oldPrice"
@@ -118,8 +134,8 @@ export default function AdminProductsPage() {
           placeholder="Price"
           value={form.price}
           onChange={handleChange}
-          className="w-full p-2 border rounded"
           required
+          className="w-full p-2 border rounded"
         />
         <label className="flex items-center gap-2">
           <input
@@ -138,51 +154,24 @@ export default function AdminProductsPage() {
           className="w-full p-2 border rounded"
         />
 
-        {/* file inputs */}
-        <div>
-          <label className="block mb-1">Image 1 (front)</label>
-          <input
-            type="file"
-            name="image1"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
-          {uploading.image1 ? (
-            <p className="text-sm">Uploading...</p>
-          ) : form.image1 ? (
-            <p className="text-sm text-green-600 break-all">{form.image1}</p>
-          ) : null}
-        </div>
-
-        <div>
-          <label className="block mb-1">Image 2 (back)</label>
-          <input
-            type="file"
-            name="image2"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
-          {uploading.image2 ? (
-            <p className="text-sm">Uploading...</p>
-          ) : form.image2 ? (
-            <p className="text-sm text-green-600 break-all">{form.image2}</p>
-          ) : null}
-        </div>
-
-        <div>
-          <label className="block mb-1">Image 3 (side)</label>
-          <input
-            type="file"
-            name="image3"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
-          {uploading.image3 ? (
-            <p className="text-sm">Uploading...</p>
-          ) : form.image3 ? (
-            <p className="text-sm text-green-600 break-all">{form.image3}</p>
-          ) : null}
-        </div>
+        {["image1", "image2", "image3"].map((img) => (
+          <div key={img}>
+            <label className="block mb-1">{img.toUpperCase()}</label>
+            <input
+              type="file"
+              name={img}
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+            {uploading[img] ? (
+              <p className="text-sm">Uploading...</p>
+            ) : (
+              form[img] && (
+                <p className="text-sm text-green-600 break-all">{form[img]}</p>
+              )
+            )}
+          </div>
+        ))}
 
         <textarea
           rows={3}
@@ -195,8 +184,8 @@ export default function AdminProductsPage() {
 
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded cursor-pointer"
           disabled={uploading.image1 || uploading.image2 || uploading.image3}
+          className="bg-blue-600 text-white px-4 py-2 rounded cursor-pointer"
         >
           Upload
         </button>

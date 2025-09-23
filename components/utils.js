@@ -57,12 +57,12 @@ export const categories = [
   },
 ];
 
-export const products = [
+export const fallbackProducts = [
   {
-    id: 1,
+    id: "fallback-1",
     name: "Wrist Watch",
     price: 40000,
-    olprice: 30000,
+    oldprice: 30000,
     createdAt: "2025-01-20T10:00:00Z",
     image1:
       "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -71,7 +71,7 @@ export const products = [
     description: "A standard wrist watch that is water resistance",
   },
   {
-    id: 2,
+    id: "fallback-2",
     name: "Palms wears",
     price: 12000,
     oldprice: 130000,
@@ -84,7 +84,7 @@ export const products = [
     description: "quality wears direct from turkey",
   },
   {
-    id: 3,
+    id: "fallback-3",
     name: "Brazilian Hair",
     price: 200000,
     oldprice: 400000,
@@ -98,7 +98,7 @@ export const products = [
     description: " A lasting and good hair for female",
   },
   {
-    id: 4,
+    id: "fallback-4",
     name: "Neauty Creame",
     price: 89000,
     oldprice: 100000,
@@ -111,7 +111,7 @@ export const products = [
     description: "Neauty Cream for good skin care",
   },
   {
-    id: 5,
+    id: "fallback-5",
     name: "Sneakers",
     price: 36000,
     oldprice: 40000,
@@ -124,7 +124,7 @@ export const products = [
     description: "Direct Italian snekaers",
   },
   {
-    id: 6,
+    id: "fallback-6",
     name: "Baby Pampers",
     price: 90000,
     oldprice: 100000,
@@ -137,7 +137,7 @@ export const products = [
     description: "comfort diapers for babies",
   },
   {
-    id: 7,
+    id: "fallback-7",
     name: "High Hills",
     price: 7000,
     oldprice: 9000,
@@ -150,7 +150,7 @@ export const products = [
     description: " Female hils strong and lasting",
   },
   {
-    id: 8,
+    id: "fallback-8",
     name: "Cap",
     price: 12000,
     oldprice: 18000,
@@ -163,7 +163,7 @@ export const products = [
     description: " Quality cap for sunshade",
   },
   {
-    id: 9,
+    id: "fallback-9",
     name: "Sweater",
     price: 9000,
     oldprice: 10000,
@@ -176,7 +176,7 @@ export const products = [
     description: " Quality wears for cold weather",
   },
   {
-    id: 10,
+    id: "fallback-10",
     name: "Underwears",
     price: 9000,
     oldprice: 10000,
@@ -189,7 +189,7 @@ export const products = [
     description: " Quality wears for cold weather",
   },
   {
-    id: 11,
+    id: "fallback-11",
     name: "Underwears",
     price: 9000,
     oldprice: 10000,
@@ -202,7 +202,7 @@ export const products = [
     description: " Quality wears for cold weather",
   },
   {
-    id: 12,
+    id: "fallback-12",
     name: "Underwears",
     price: 9000,
     oldprice: 10000,
