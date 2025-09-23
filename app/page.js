@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Hero from "@/components/Hero";
 import Category from "@/components/category/Category";
 import ProductList from "@/components/productList/ProductList";
-import { fallbackProducts } from "@/utils/fallbackProducts";
+import { fallbackProducts } from "@/components/utils";
 
 const Home = () => {
   const [products, setProducts] = useState([]);

@@ -1,5 +1,5 @@
 import { getProducts } from "@/lib/googleSheet";
-import { fallbackProducts } from "@/utils/products";
+import { fallbackProducts } from "@/components/utils";
 
 export async function fetchMergedProducts() {
   try {

@@ -38,7 +38,7 @@ export default function AdminProductsPage() {
   // --- SIMPLE CLIENT AUTH ---
   useEffect(() => {
     const token = prompt("Enter admin token");
-    if (token === process.env.NEXT_PUBLIC_ADMIN_TOKEN) {
+    if (token === process.env.NEXT_PUBLIC_FORM_ADMIN_TOKEN) {
       setAuthorized(true);
     } else {
       alert("Unauthorized");
@@ -82,7 +82,7 @@ export default function AdminProductsPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.ADMIN_TOKEN}`,
+          Authorization: `Bearer ${process.env.FORM_ADMIN_TOKEN}`,
         },
         body: JSON.stringify(form),
       });
