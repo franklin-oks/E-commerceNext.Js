@@ -13,7 +13,7 @@ export async function POST(req) {
       body: JSON.stringify({
         email,
         amount: amount * 100, // Paystack expects amount in kobo
-        callback_url: "http://localhost:3000/cart/verify", // change to your deployed callback page
+        callback_url: process.env.NEXT_PUBLIC_CALLBACK_URL, // change to your deployed callback page
       }),
     });
 
