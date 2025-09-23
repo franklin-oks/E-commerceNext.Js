@@ -1,4 +1,3 @@
-import logo from "@/public/jeep-remove.png";
 export const sliders = [
   {
     id: 1,
