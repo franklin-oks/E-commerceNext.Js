@@ -6,6 +6,8 @@
 // import { FaWhatsapp, FaRegCopy, FaTimes } from "react-icons/fa";
 // import { createPortal } from "react-dom";
 
+// import PayButton from "./PayButton";
+
 // const formatCurrency = (amount) => {
 //   if (isNaN(amount)) return "₦0";
 //   return new Intl.NumberFormat("en-NG", {
@@ -50,9 +52,16 @@
 //   if (!mounted) return null;
 
 //   return createPortal(
-//     <>
+//     <div className="fixed inset-0 z-[1000]">
+//       {/* Overlay */}
+//       <div
+//         className="absolute inset-0 bg-black bg-opacity-40"
+//         onClick={onClose}
+//       />
+
 //       {/* Sidebar */}
-//       <div className="fixed top-0 right-0 w-full sm:w-96 h-full bg-white shadow-lg p-6 z-[1100] flex flex-col gap-6 overflow-y-auto">
+//       <div className="absolute top-0 right-0 w-full sm:w-96 h-full bg-white shadow-lg p-6 flex flex-col gap-6 overflow-y-auto z-[1100]">
+//         {/* Close Button */}
 //         <button
 //           className="absolute top-4 right-4 text-gray-600 hover:text-black z-50"
 //           onClick={onClose}
@@ -116,12 +125,11 @@
 //         {/* Payment Options */}
 //         {!showBank ? (
 //           <div className="flex justify-between gap-2 mt-4">
-//             <button
+//             <PayButton
 //               className="flex-1 rounded-md py-3 px-4 ring-1 ring-gray-500"
-//               onClick={() => alert("Debit Card Payment - Integrate later")}
-//             >
-//               Pay with Card
-//             </button>
+//               email={userEmail}
+//               amount={total}
+//             />
 //             <button
 //               className="flex-1 rounded-md py-3 px-4 bg-black text-white font-bold"
 //               onClick={() => setShowBank(true)}
@@ -169,13 +177,7 @@
 //           </div>
 //         )}
 //       </div>
-
-//       {/* Overlay */}
-//       <div
-//         className="fixed inset-0 bg-black bg-opacity-40 z-[1000]"
-//         onClick={onClose}
-//       />
-//     </>,
+//     </div>,
 //     document.body
 //   );
 // };
@@ -192,6 +194,8 @@ import { useState, useEffect } from "react";
 import { FaWhatsapp, FaRegCopy, FaTimes } from "react-icons/fa";
 import { createPortal } from "react-dom";
 
+import PayButton from "./PayButton";
+
 const formatCurrency = (amount) => {
   if (isNaN(amount)) return "₦0";
   return new Intl.NumberFormat("en-NG", {
@@ -202,6 +206,8 @@ const formatCurrency = (amount) => {
 };
 
 const CartModel = ({ onClose }) => {
+  const [userEmail, setUserEmail] = useState("");
+
   const { cart, removeFromCart, getSubtotal } = useCart();
   const subtotal = getSubtotal() || 0;
   const total = subtotal;
@@ -230,9 +236,7 @@ const CartModel = ({ onClose }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Avoid SSR hydration issues
   useEffect(() => setMounted(true), []);
-
   if (!mounted) return null;
 
   return createPortal(
@@ -306,15 +310,27 @@ const CartModel = ({ onClose }) => {
           </p>
         </div>
 
+        {/* ✅ Email Input */}
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Your Email
+          </label>
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={userEmail}
+            onChange={(e) => setUserEmail(e.target.value)}
+            className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-black outline-none"
+          />
+        </div>
+
         {/* Payment Options */}
         {!showBank ? (
           <div className="flex justify-between gap-2 mt-4">
-            <button
-              className="flex-1 rounded-md py-3 px-4 ring-1 ring-gray-500"
-              onClick={() => alert("Debit Card Payment - Integrate later")}
-            >
-              Pay with Card
-            </button>
+            <PayButton
+              email={userEmail || "guest@example.com"}
+              amount={total}
+            />
             <button
               className="flex-1 rounded-md py-3 px-4 bg-black text-white font-bold"
               onClick={() => setShowBank(true)}

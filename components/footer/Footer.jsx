@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { FaFacebookMessenger } from "react-icons/fa";
+import { FaFacebook } from "react-icons/fa6";
+import { FaWhatsapp } from "react-icons/fa";
 
 const Footer = () => {
   return (
@@ -15,7 +18,11 @@ const Footer = () => {
           <p className="text-lg">No 5 Opic Road Mowe Ogun State, Nigeria</p>
           <span className="font-semibold">nikamanda@gmail.com</span>
           <span className="font-semibold">+234 8103919717</span>
-          <div className="flex gap-6">🏀 🏀 🏀 🏀</div>
+          <div className="flex gap-6 text-lg">
+            <FaFacebookMessenger />
+            <FaFacebook />
+            <FaWhatsapp />
+          </div>
         </div>
         {/* center */}
         <div className="w-1/2 hidden lg:flex justify-between">
@@ -84,7 +91,7 @@ const Footer = () => {
         <div className="">&copy; 2025 NIKAMANDA SHOP</div>
         <div className="flex flex-col gap-8 md:flex-row">
           <div className="">
-            <span className="text-gray-500 mr-4">Language</span>
+            <span className="text-gray-500 mr-4">Location</span>
             <span className="font-medium">Ogun State, Nigeria</span>
           </div>
           <div className="">
