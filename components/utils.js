@@ -28,37 +28,72 @@ export const sliders = [
   },
 ];
 
+// export const categories = [
+//   {
+//     name: "Men Wears",
+//     image:
+//       "https://plus.unsplash.com/premium_photo-1675080431524-3e7c85323972?q=80&w=435&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+//   },
+//   {
+//     name: "Female Wears",
+//     image:
+//       "https://images.unsplash.com/photo-1441123694162-e54a981ceba5?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+//   },
+//   {
+//     name: "Foot wears",
+//     image:
+//       "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?q=80&w=464&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+//   },
+//   {
+//     name: "Bags",
+//     image:
+//       "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?q=80&w=457&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+//   },
+//   {
+//     name: "Ankara",
+//     image:
+//       "https://images.unsplash.com/photo-1757140447779-9cffcc270104?q=80&w=464&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+//   },
+// ];
+
+// /components/utils/index.js
 export const categories = [
   {
+    slug: "females", // MUST match the slug in your Supabase categories table
+    name: "Female Wears", // fallback label (DB will override if available)
+    image:
+      "https://images.unsplash.com/photo-1441123694162-e54a981ceba5?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0",
+  },
+  {
+    slug: "male",
     name: "Men Wears",
     image:
-      "https://plus.unsplash.com/premium_photo-1675080431524-3e7c85323972?q=80&w=435&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://plus.unsplash.com/premium_photo-1675080431524-3e7c85323972?q=80&w=435&auto=format&fit=crop&ixlib=rb-4.1.0",
   },
   {
-    name: "Female Wears",
-    image:
-      "https://images.unsplash.com/photo-1441123694162-e54a981ceba5?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  },
-  {
+    slug: "foot",
     name: "Foot wears",
     image:
-      "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?q=80&w=464&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?q=80&w=464&auto=format&fit=crop&ixlib=rb-4.1.0",
   },
   {
-    name: "Bags",
+    slug: "babies",
+    name: "Babies",
     image:
-      "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?q=80&w=457&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1441123694162-e54a981ceba5?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0",
   },
   {
+    slug: "ankara",
     name: "Ankara",
     image:
-      "https://images.unsplash.com/photo-1757140447779-9cffcc270104?q=80&w=464&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1757140447779-9cffcc270104?q=80&w=464&auto=format&fit=crop&ixlib=rb-4.1.0",
   },
+  // add more static categories here and match 'slug' to your DB slug
 ];
 
-export const fallbackProducts = [
+export const products = [
   {
-    id: "fallback-1",
+    id: 1,
     name: "Wrist Watch",
     price: 40000,
     oldprice: 30000,
@@ -72,7 +107,7 @@ export const fallbackProducts = [
     description: "A standard wrist watch that is water resistance",
   },
   {
-    id: "fallback-2",
+    id: 2,
     name: "Palms wears",
     price: 12000,
     oldprice: 13000,
@@ -88,7 +123,7 @@ export const fallbackProducts = [
     description: "quality wears direct from turkey",
   },
   {
-    id: "fallback-3",
+    id: 3,
     name: "Brazilian Hair",
     price: 200000,
     oldprice: 400000,
@@ -104,7 +139,7 @@ export const fallbackProducts = [
     description: " A lasting and good hair for female",
   },
   {
-    id: "fallback-4",
+    id: 4,
     name: "Neauty Creame",
     price: 89000,
     oldprice: 100000,
@@ -119,7 +154,7 @@ export const fallbackProducts = [
     description: "Neauty Cream for good skin care",
   },
   {
-    id: "fallback-5",
+    id: 5,
     name: "Sneakers",
     price: 36000,
     oldprice: 40000,
@@ -134,7 +169,7 @@ export const fallbackProducts = [
     description: "Direct Italian snekaers",
   },
   {
-    id: "fallback-6",
+    id: 6,
     name: "Baby Pampers",
     price: 90000,
     oldprice: 100000,
@@ -149,7 +184,7 @@ export const fallbackProducts = [
     description: "comfort diapers for babies",
   },
   {
-    id: "fallback-7",
+    id: 7,
     name: "High Hills",
     price: 7000,
     oldprice: 9000,
@@ -164,7 +199,7 @@ export const fallbackProducts = [
     description: " Female hils strong and lasting",
   },
   {
-    id: "fallback-8",
+    id: 8,
     name: "Cap",
     price: 12000,
     oldprice: 18000,
@@ -179,7 +214,7 @@ export const fallbackProducts = [
     description: " Quality cap for sunshade",
   },
   {
-    id: "fallback-9",
+    id: 9,
     name: "Sweater",
     price: 9000,
     oldprice: 10000,
@@ -194,7 +229,7 @@ export const fallbackProducts = [
     description: " Quality wears for cold weather",
   },
   {
-    id: "fallback-10",
+    id: 10,
     name: "Underwears",
     price: 9000,
     oldprice: 10000,
@@ -209,7 +244,7 @@ export const fallbackProducts = [
     description: " Quality wears for cold weather",
   },
   {
-    id: "fallback-11",
+    id: 11,
     name: "Underwears",
     price: 9000,
     oldprice: 10000,
@@ -224,7 +259,7 @@ export const fallbackProducts = [
     description: " Quality wears for cold weather",
   },
   {
-    id: "fallback-12",
+    id: 12,
     name: "Underwears",
     price: 9000,
     oldprice: 10000,

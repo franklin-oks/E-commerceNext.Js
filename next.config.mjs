@@ -1,8 +1,3 @@
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {};
-
-// export default nextConfig;
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -17,15 +12,11 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "plus.unsplash.com",
+        hostname: "fophuolbbhskqdcuqxvh.supabase.co",
       },
       {
         protocol: "https",
-        hostname: "images.pexels.com",
-      },
-        {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
+        hostname: "plus.unsplash.com",
       },
     ],
   },

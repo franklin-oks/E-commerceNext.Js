@@ -1,9 +1,27 @@
+"use client";
 import Link from "next/link";
 import { FaFacebookMessenger } from "react-icons/fa";
 import { FaFacebook } from "react-icons/fa6";
 import { FaWhatsapp } from "react-icons/fa";
+import { supabase } from "@/lib/supabaseClient";
+import { toast } from "react-toastify";
+import { useState } from "react";
 
 const Footer = () => {
+  const [sub, setSub] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const { error } = await supabase.from("subscribe").insert(sub).single();
+
+    if (error) {
+      toast("Error subscribing");
+      return;
+    }
+    setSub("");
+  };
+
   return (
     <div className="py-24 px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 bg-gray-200 text-sm mt-24">
       {/* top */}
@@ -29,10 +47,10 @@ const Footer = () => {
           <div className="flex flex-col justify-between">
             <h2 className="font-medium text-lg">COMPANY</h2>
             <div className="flex flex-col gap-6 mt-[-2rem]">
-              <Link href="/">About Us</Link>
+              <Link href="/about">About Us</Link>
               <Link href="/">BLog</Link>
-              <Link href="/">Shop</Link>
-              <Link href="/">Contact</Link>
+              <Link href="/products">Shop</Link>
+              <Link href="/contact">Contact</Link>
             </div>
           </div>
         </div>
@@ -65,16 +83,21 @@ const Footer = () => {
             Be the first to get the latest news about trends, products and much
             more!
           </p>
-          <div className="flex  bg-white relative ">
+          <form onSubmit={handleSubmit} className="flex  bg-white relative ">
             <input
               type="text"
               placeholder="Enter Email"
+              value={sub}
+              onChange={(e) => setSub(e.target.value)}
               className="p-4 w-3/4 outline-none border-none"
             />
-            <button className="text-white absolute right-0 top-0 bottom-0 bg-orange-500 p-2">
+            <button
+              type="submit"
+              className="text-white absolute right-0 top-0 bottom-0 bg-orange-500 p-2"
+            >
               JOIN
             </button>
-          </div>
+          </form>
           <span className="semibold">Secure Payments</span>
           <div className="flex justify-between gap-2">
             <span className="text-sm font-bold">Verve</span>

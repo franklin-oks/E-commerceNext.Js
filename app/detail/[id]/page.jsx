@@ -1,89 +1,12 @@
-// "use client";
-// import { useParams } from "next/navigation";
-// import { useEffect, useState } from "react";
-// import ProductImage from "@/components/productImages/ProductImage";
-// import Add from "@/components/add/Add";
-// import CustomizeProduct from "@/components/customize/CustomizeProduct";
-
-// const formatCurrency = (amount) => {
-//   if (!amount) return "₦0";
-//   return new Intl.NumberFormat("en-NG", {
-//     style: "currency",
-//     currency: "NGN",
-//     minimumFractionDigits: 0,
-//   }).format(Number(amount));
-// };
-
-// const DetailPage = () => {
-//   const params = useParams();
-//   const id = String(params?.id); // treat ID as string
-
-//   const [product, setProduct] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchProduct = async () => {
-//       try {
-//         const res = await fetch("/api/products");
-//         const data = await res.json();
-
-//         // Normalize all IDs to string
-//         const found = data.find((p) => String(p.id) === id);
-//         setProduct(found);
-//       } catch (err) {
-//         console.error("Failed to fetch products:", err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchProduct();
-//   }, [id]);
-
-//   if (loading) return <p className="p-6">Loading...</p>;
-//   if (!product) return <p className="p-6">Product not found</p>;
-
-//   return (
-//     <div className="mt-12 px-4 sm:px-8 lg:px-8 w-full relative flex flex-col lg:flex-row gap-16">
-//       <div className="w-full lg:w-1/2 lg:sticky top-20 h-max">
-//         <ProductImage
-//           image1={product.image1 || "/placeholder.png"}
-//           image2={product.image2 || "/placeholder.png"}
-//           image3={product.image3 || "/placeholder.png"}
-//         />
-//       </div>
-//       <div className="w-full lg:w-1/2 flex flex-col gap-6 md:mt-20">
-//         <h2 className="text-4xl font-medium">{product.name}</h2>
-//         <p className="text-gray-500">{product.description}</p>
-//         <div className="bg-gray-100 h-[2px]" />
-//         <div className="flex items-center gap-4">
-//           {product.oldprice && (
-//             <h3 className="text-xl text-gray-500 line-through">
-//               {formatCurrency(product.oldprice)}
-//             </h3>
-//           )}
-//           <h2 className="font-medium text-2xl">
-//             {formatCurrency(product.price)}
-//           </h2>
-//         </div>
-//         <div className="bg-gray-100 h-[2px]" />
-//         <CustomizeProduct />
-//         <Add product={product} />
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default DetailPage;
-
-// chat
 "use client";
 
-import { useParams } from "next/navigation";
+import Image from "next/image";
 import { useEffect, useState } from "react";
-import ProductImage from "@/components/productImages/ProductImage";
-import Add from "@/components/add/Add";
-import CustomizeProduct from "@/components/customize/CustomizeProduct";
+import { toast } from "react-toastify";
+import { supabase } from "@/lib/supabaseClient";
+import { useCart } from "@/context/CartContext";
+import RelatedProduct from "@/components/related/RelatedProduct";
+import { useParams } from "next/navigation";
 
 const formatCurrency = (amount) => {
   if (!amount) return "₦0";
@@ -95,74 +18,98 @@ const formatCurrency = (amount) => {
 };
 
 const DetailPage = () => {
+  const { addToCart } = useCart();
+  const [productDetails, setProductDetails] = useState(null);
   const params = useParams();
-  const id = String(params?.id);
-
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const id = params?.id;
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const res = await fetch("/api/products");
-        const data = await res.json();
-
-        // Normalize images for all products
-        const normalized = data.map((p) => ({
-          ...p,
-          image1: p.image1 || p.image || "/placeholder.png",
-          image2: p.image2 || p.image || p.image1 || "/placeholder.png",
-          image3: p.image3 || p.image || p.image1 || "/placeholder.png",
-        }));
-
-        const found = normalized.find((p) => String(p.id) === id);
-        setProduct(found);
-      } catch (err) {
-        console.error("Failed to fetch products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProduct();
+    getDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  if (loading) return <p className="p-6">Loading...</p>;
-  if (!product) return <p className="p-6">Product not found</p>;
+  const getDetails = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", id)
+        .single(); // returns single object
+
+      if (error) {
+        console.error(error);
+        toast.error("Server side error, try again!");
+        return;
+      }
+      setProductDetails(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Unexpected error");
+    }
+  };
+
+  if (!productDetails) {
+    return <div className="text-center py-8">Loading product...</div>;
+  }
+
+  // const imageSrc = getImageUrl(productDetails);
 
   return (
-    <div className="mt-12 px-4 sm:px-8 lg:px-8 w-full relative flex flex-col lg:flex-row gap-16">
-      <div className="w-full lg:w-1/2 lg:sticky top-20 h-max">
-        <ProductImage
-          image1={product.image1}
-          image2={product.image2}
-          image3={product.image3}
-        />
-      </div>
-
-      <div className="w-full lg:w-1/2 flex flex-col gap-6 md:mt-20">
-        <h2 className="text-4xl font-medium">{product.name}</h2>
-        <p className="text-gray-500">{product.description}</p>
-
-        <div className="bg-gray-100 h-[2px]" />
-
-        <div className="flex items-center gap-4">
-          {product.oldprice && (
-            <h3 className="text-xl text-gray-500 line-through">
-              {formatCurrency(product.oldprice)}
-            </h3>
-          )}
-          <h2 className="font-medium text-2xl">
-            {formatCurrency(product.price)}
-          </h2>
+    <>
+      <div className="mt-12 lg:mt-25 px-4 sm:px-8 lg:px-8 w-full relative flex flex-col lg:flex-row gap-16">
+        <div className="w-full lg:w-1/2 lg:sticky top-20 h-max lg:mt-20 relative">
+          <Image
+            src={productDetails.image_url}
+            alt={productDetails.title}
+            width={800}
+            height={800}
+            className="object-cover rounded-md"
+          />
         </div>
 
-        <div className="bg-gray-100 h-[2px]" />
+        <div className="w-full lg:w-1/2 flex flex-col gap-6 md:mt-20">
+          <h2 className="text-4xl font-medium">{productDetails.title}</h2>
+          <p className="text-gray-500">{productDetails.description}</p>
 
-        <CustomizeProduct />
-        <Add product={product} />
+          <div className="bg-gray-100 h-[2px]" />
+
+          <div className="flex items-center gap-4">
+            <h3 className="text-xl text-gray-500 line-through">
+              {formatCurrency(productDetails.price * 2.1)}
+            </h3>
+
+            <h2 className="font-medium text-2xl">
+              {formatCurrency(productDetails.price)}
+            </h2>
+          </div>
+
+          <div className="bg-gray-100 h-[2px]" />
+          <button
+            onClick={() =>
+              addToCart({
+                id: productDetails.id,
+                name: productDetails.title,
+                price: productDetails.price,
+                image: productDetails.image_url,
+              })
+            }
+            className="w-32 h-max text-xs cursor-pointer rounded-3xl ring-1 ring-pink-500 text-pink-500 py-2 px-4 hover:bg-pink-500 hover:text-white"
+          >
+            Add to Cart
+          </button>
+        </div>
       </div>
-    </div>
+
+      <h1 className="text-center mt-30 text-lg text-gray-800 lg:text-2xl font-bold">
+        Related products
+      </h1>
+      <div className="px-6">
+        <RelatedProduct
+          category={productDetails.category}
+          currentId={productDetails.id}
+        />
+      </div>
+    </>
   );
 };
 

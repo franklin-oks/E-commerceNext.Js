@@ -1,17 +1,24 @@
 "use client";
+import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const SearchBar = () => {
+  const [name, setName] = useState("");
+
   const router = useRouter();
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
+    router.push("/products");
 
-    const formData = new formData(e.currentTarget);
-    const name = formData.get("name");
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .like("title", "%" + name + "%");
 
-    if (name) {
-      router.push(`/list?name=${name}`);
+    if (data) {
+      setName(data);
     }
   };
 
@@ -22,7 +29,8 @@ const SearchBar = () => {
     >
       <input
         type="text"
-        name="name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
         placeholder="search..."
         className="flex-1 outline-none bg-transparent"
       />

@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
 const CartContext = createContext();
 
@@ -33,6 +34,7 @@ export const CartProvider = ({ children }) => {
       }
       // Add new product
       return [...prev, { ...product, quantity: 1 }];
+      toast.success("product added successfully!");
     });
   };
 
