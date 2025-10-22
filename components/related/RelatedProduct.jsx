@@ -2,19 +2,15 @@
 
 import ProductList from "@/components/productList/ProductList";
 
-/**
- * category: product category string
- * currentId: id to exclude from related
- */
-const RelatedProducts = ({ category, currentId }) => {
-  if (!category) return null;
+const RelatedProducts = ({ categoryId, currentId }) => {
+  if (!categoryId) return null;
   // fetch 8 related items same category, exclude current product
   return (
     <ProductList
-      limit={8}
-      category={category}
+      limit={4}
+      categoryId={categoryId} // pass the ID, not the slug
       excludeId={currentId}
-      orderColumn="created_at"
+      orderColumn="title" // or "created_at"
       orderAsc={false}
     />
   );

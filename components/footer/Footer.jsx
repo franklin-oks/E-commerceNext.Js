@@ -6,20 +6,39 @@ import { FaWhatsapp } from "react-icons/fa";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Footer = () => {
   const [sub, setSub] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { error } = await supabase.from("subscribe").insert(sub).single();
+    if (!sub) return toast.error("Please enter your email");
 
-    if (error) {
-      toast("Error subscribing");
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      toast.info("You must login before subscribing!");
+      router.push("/login"); // redirect to login
       return;
     }
+
+    const { error } = await supabase
+      .from("subscribe")
+      .insert([{ email: sub }])
+      .single();
+
+    if (error) {
+      console.error(error);
+      toast.error("Error subscribing. You might already be subscribed.");
+      return;
+    }
+
     setSub("");
+    toast.success("Subscried Successfully!");
   };
 
   return (
@@ -93,7 +112,7 @@ const Footer = () => {
             />
             <button
               type="submit"
-              className="text-white absolute right-0 top-0 bottom-0 bg-orange-500 p-2"
+              className="text-white cursor-pointer absolute right-0 top-0 bottom-0 bg-orange-500 p-2"
             >
               JOIN
             </button>
