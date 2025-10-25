@@ -22,7 +22,7 @@ const ProductsPage = () => {
         </div>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-12 lg:hidden">
         <Searchbar />
       </div>
 
