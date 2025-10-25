@@ -1,12 +1,9 @@
 "use client";
-
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaWhatsapp, FaRegCopy, FaTimes } from "react-icons/fa";
 import { createPortal } from "react-dom";
-
-// import PayButton from "./PayButton";
 
 const formatCurrency = (amount) => {
   if (isNaN(amount)) return "₦0";
@@ -17,16 +14,19 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-const CartModel = ({ onClose }) => {
-  // const [userEmail, setUserEmail] = useState("");
-
+export default function CartModel({ onClose }) {
   const { cart, removeFromCart, getSubtotal } = useCart();
   const subtotal = getSubtotal() || 0;
   const total = subtotal;
 
+  // local UI state
   const [showBank, setShowBank] = useState(false);
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
+  // visible controls the display of the modal internally
+  const [visible, setVisible] = useState(true);
+
+  const panelRef = useRef(null);
 
   const bankDetails = {
     accountName: "Okeke Obinna Franklin",
@@ -42,36 +42,93 @@ const CartModel = ({ onClose }) => {
   );
   const whatsappLink = `https://wa.me/${bankDetails.whatsapp}?text=${whatsappMessage}`;
 
-  const copyAccountNumber = () => {
-    navigator.clipboard.writeText(bankDetails.accountNumber);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copyAccountNumber = async () => {
+    try {
+      await navigator.clipboard.writeText(bankDetails.accountNumber);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignore clipboard errors
+    }
   };
 
+  // mount guard for SSR
   useEffect(() => setMounted(true), []);
+
+  // lock body scroll while visible (only when visible)
+  useEffect(() => {
+    if (!visible) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev || "";
+    };
+  }, [visible]);
+
+  const handleClose = () => {
+    setVisible(false);
+
+    setTimeout(() => {
+      onClose && onClose();
+    }, 0);
+  };
+
+  useEffect(() => {
+    if (!visible) return;
+
+    function handlePointerDown(e) {
+      if (!panelRef.current) return;
+      if (!panelRef.current.contains(e.target)) {
+        handleClose();
+      }
+    }
+
+    function handleKeyDown(e) {
+      if (e.key === "Escape") handleClose();
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("touchstart", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("touchstart", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
+
   if (!mounted) return null;
+  if (!visible) return null; // unmount when not visible
 
   return createPortal(
-    <div className="fixed inset-0 z-[1000]">
-      {/* Overlay */}
+    <div className="fixed inset-0 z-[1000] pointer-events-none">
+      {/* Transparent click-catcher (no dark overlay) — pointer-events-auto so it captures taps */}
       <div
-        className="absolute inset-0 bg-black bg-opacity-40"
-        onClick={onClose}
+        className="absolute inset-0 pointer-events-auto"
+        aria-hidden="true"
       />
 
-      {/* Sidebar */}
-      <div className="absolute top-0 right-0 w-full sm:w-96 h-full bg-white shadow-lg p-6 flex flex-col gap-6 overflow-y-auto z-[1100]">
+      {/* Sidebar panel */}
+      <aside
+        ref={panelRef}
+        className="absolute top-0 right-0 w-full sm:w-96 h-full bg-white shadow-lg p-6 flex flex-col gap-6 overflow-y-auto z-[1010] pointer-events-auto"
+        role="dialog"
+        aria-modal="true"
+      >
         {/* Close Button */}
         <button
           className="absolute top-4 right-4 text-gray-600 hover:text-black z-50"
-          onClick={onClose}
+          onClick={handleClose}
+          aria-label="Close cart"
         >
           <FaTimes size={22} />
         </button>
 
         <h2 className="font-semibold text-lg">Shopping Cart</h2>
 
-        {cart.length === 0 ? (
+        {!cart || cart.length === 0 ? (
           <div className="mt-4">Cart is Empty</div>
         ) : (
           <div className="flex flex-col gap-4">
@@ -80,13 +137,26 @@ const CartModel = ({ onClose }) => {
                 key={item.id}
                 className="flex gap-4 items-center justify-between border-b pb-2"
               >
-                <Image
-                  src={item.image}
-                  alt={item.name}
-                  width={80}
-                  height={80}
-                  className="object-cover rounded-md"
-                />
+                {item.image ? (
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    width={80}
+                    height={80}
+                    className="object-cover rounded-md"
+                    onError={(e) => {
+                      try {
+                        const img = e.currentTarget;
+                        if (img && img.src) img.src = "/fallback-product.jpg";
+                      } catch {}
+                    }}
+                  />
+                ) : (
+                  <div className="w-[80px] h-[80px] bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500">
+                    No image
+                  </div>
+                )}
+
                 <div className="flex flex-col flex-1 gap-2">
                   <div className="flex justify-between items-center">
                     <h3 className="font-semibold">{item.name}</h3>
@@ -141,6 +211,7 @@ const CartModel = ({ onClose }) => {
             <p>
               <strong>Account Name:</strong> {bankDetails.accountName}
             </p>
+
             <div className="flex items-center gap-2">
               <strong>Account Number:</strong>
               <span className="bg-gray-100 p-1 rounded">
@@ -150,6 +221,7 @@ const CartModel = ({ onClose }) => {
                 className="text-gray-600 hover:text-black"
                 onClick={copyAccountNumber}
                 title="Copy account number"
+                aria-label="Copy account number"
               >
                 <FaRegCopy />
               </button>
@@ -171,10 +243,8 @@ const CartModel = ({ onClose }) => {
             </a>
           </div>
         )}
-      </div>
+      </aside>
     </div>,
     document.body
   );
-};
-
-export default CartModel;
+}
