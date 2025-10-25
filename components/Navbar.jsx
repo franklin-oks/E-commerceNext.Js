@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Menu from "./Menu";
-import SearchBar from "./Searchbar";
+
 import NavbarIcons from "./NavbarIcons";
 import CartModel from "./CartModel";
 import { useCart } from "@/context/CartContext";
@@ -100,7 +100,6 @@ const Navbar = () => {
         </div>
 
         <div className="w-2/3 lg:w-1/2 flex justify-end items-center gap-8">
-          <SearchBar />
           <NavbarIcons />
         </div>
       </div>

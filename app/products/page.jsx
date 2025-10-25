@@ -1,7 +1,8 @@
 import ProductList from "@/components/productList/ProductList";
-import Filter from "@/components/filterProd/Filter";
+
 import Image from "next/image";
 import logo from "@/public/jeep-remove.png";
+import Searchbar from "@/components/Searchbar";
 
 const ProductsPage = () => {
   return (
@@ -21,7 +22,9 @@ const ProductsPage = () => {
         </div>
       </div>
 
-      <Filter />
+      <div className="mt-5">
+        <Searchbar />
+      </div>
 
       <h2 className="text-xl mt-12 font-semibold">Available Products!</h2>
       <ProductList />

@@ -1,4 +1,3 @@
-// app/api/admin/delete-product/route.js
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
