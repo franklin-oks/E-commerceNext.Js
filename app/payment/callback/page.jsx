@@ -74,20 +74,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function PaymentCallbackPage() {
-  const params = useSearchParams();
   const router = useRouter();
-  const reference = params?.get("reference");
+  const [reference, setReference] = useState(null);
   const [status, setStatus] = useState("verifying"); // verifying | success | failed | error
+
+  // get query param from browser (avoids useSearchParams)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("reference");
+    setReference(ref);
+  }, []);
 
   useEffect(() => {
     if (!reference) {
-      setStatus("error");
-      // short delay then redirect to failed
-      const t = setTimeout(() => router.push("/payment/failed"), 800);
-      return () => clearTimeout(t);
+      // if reference is not available yet, wait a moment
+      return;
     }
 
     let mounted = true;
@@ -105,7 +110,6 @@ export default function PaymentCallbackPage() {
 
         if (res.ok && json.ok && json.data?.status === "success") {
           setStatus("success");
-          // small UX delay then redirect to success page
           setTimeout(
             () =>
               router.push(
@@ -125,7 +129,7 @@ export default function PaymentCallbackPage() {
         }
       } catch (err) {
         if (err.name === "AbortError") return;
-        console.error("Verify call error", err);
+        console.error("Verify call failed", err);
         if (!mounted) return;
         setStatus("error");
         setTimeout(() => router.push("/payment/failed"), 1000);
