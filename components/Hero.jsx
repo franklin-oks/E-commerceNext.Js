@@ -10,7 +10,7 @@ const Hero = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrent((prev) => (prev === sliders.length - 1 ? 0 : prev + 1));
-    }, 9000);
+    }, 4000);
 
     return () => clearInterval(interval);
   }, []);
