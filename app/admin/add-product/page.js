@@ -6,7 +6,7 @@ import imageCompression from "browser-image-compression";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import AdminGuard from "@/components/guard/AdminGuard";
-
+import Image from "next/image";
 export default function AddProduct() {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
@@ -212,7 +212,9 @@ export default function AddProduct() {
                 </div>
                 {preview && (
                   <div className="mt-3">
-                    <img
+                    <Image
+                      width={40}
+                      height={40}
                       src={preview}
                       alt="preview"
                       className="w-32 h-32 object-cover rounded-md shadow-sm"

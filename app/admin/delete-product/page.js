@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "react-toastify";
 import AdminGuard from "@/components/guard/AdminGuard";
+import Image from "next/image";
 
 export default function DeleteProduct() {
   const [products, setProducts] = useState([]);
@@ -97,7 +98,9 @@ export default function DeleteProduct() {
               {/* Small Thumbnail */}
               <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0 mr-3">
                 {product.image_url ? (
-                  <img
+                  <Image
+                    width={40}
+                    height={40}
                     src={product.image_url}
                     alt={product.title}
                     className="w-full h-full object-cover"
